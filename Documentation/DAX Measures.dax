@@ -1,0 +1,88 @@
+-- RetailPulse Power BI DAX Measures
+-- Assumes the main transaction table is named Sales_Data
+-- and the calendar table is named Date.
+
+Total Sales =
+SUM(Sales_Data[Sales])
+
+Total Cost =
+SUM(Sales_Data[Cost])
+
+Total Profit =
+SUM(Sales_Data[Profit])
+
+Total Orders =
+DISTINCTCOUNT(Sales_Data[Order_ID])
+
+Total Customers =
+DISTINCTCOUNT(Sales_Data[Customer_ID])
+
+Total Quantity =
+SUM(Sales_Data[Quantity])
+
+Average Order Value =
+DIVIDE([Total Sales], [Total Orders], 0)
+
+Profit Margin =
+DIVIDE([Total Profit], [Total Sales], 0)
+
+Returned Orders =
+CALCULATE(
+    [Total Orders],
+    Sales_Data[Return_Status] = "Returned"
+)
+
+Return Rate =
+DIVIDE([Returned Orders], [Total Orders], 0)
+
+Online Sales =
+CALCULATE(
+    [Total Sales],
+    Sales_Data[Sales_Channel] = "Online"
+)
+
+Store Sales =
+CALCULATE(
+    [Total Sales],
+    Sales_Data[Sales_Channel] = "Store"
+)
+
+Previous Year Sales =
+CALCULATE(
+    [Total Sales],
+    SAMEPERIODLASTYEAR('Date'[Date])
+)
+
+YoY Growth =
+DIVIDE(
+    [Total Sales] - [Previous Year Sales],
+    [Previous Year Sales],
+    0
+)
+
+Previous Year Profit =
+CALCULATE(
+    [Total Profit],
+    SAMEPERIODLASTYEAR('Date'[Date])
+)
+
+Profit YoY Growth =
+DIVIDE(
+    [Total Profit] - [Previous Year Profit],
+    [Previous Year Profit],
+    0
+)
+
+Customer Sales =
+CALCULATE(
+    [Total Sales],
+    ALLEXCEPT(Sales_Data, Sales_Data[Customer_ID])
+)
+
+Customer Segment =
+SWITCH(
+    TRUE(),
+    [Customer Sales] >= 100000, "High Value",
+    [Customer Sales] >= 50000, "Medium Value",
+    "Low Value"
+)
